@@ -15,13 +15,15 @@ class Context(object):
     token_num = 0
     char_num = 0
 
-    def __init__(self,
-                 text,
-                 state,
-                 split_signs,
-                 pair_signs,
-                 soften_split_signs,
-                 token_limits=None):
+    def __init__(
+        self,
+        text,
+        state,
+        split_signs,
+        pair_signs,
+        soften_split_signs,
+        token_limits=None
+    ):
         self.text = text
         self.state = state
         self.current_sentence_builder = []
@@ -48,5 +50,6 @@ class Context(object):
         self.char_num = 0
 
     def is_too_long(self):
-        return (self.token_limits <= self.token_num
-               ) if self.token_limits else False
+        if self.token_limits and self.token_limits <= self.token_num:
+            return True
+        return False

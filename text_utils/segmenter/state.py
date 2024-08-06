@@ -23,8 +23,7 @@ class CharCheckContextState(ContextState):
             context.char_num += 1
         context.token_num = int(context.char_num / 1.5)
 
-        if (not context.is_pair_sign_opened) and (
-                current_char in context.pair_signs):
+        if (not context.is_pair_sign_opened) and (current_char in context.pair_signs):
             context.state = CONTEXT_STATE_MANAGER["PAIR_SIGN_CONTEXT_STATE"]
         elif context.is_too_long() and current_char in SOFTEN_SPLIT_SIGN:
             context.current_sentence_builder.append(current_char)
@@ -33,8 +32,7 @@ class CharCheckContextState(ContextState):
             context.current_sentence_builder.append(current_char)
             context.state = CONTEXT_STATE_MANAGER["SPLIT_CONTEXT_STATE"]
         elif context.is_pair_sign_opened and current_char in context.back_pair_sign:
-            context.state = CONTEXT_STATE_MANAGER[
-                "PAIR_SIGN_CLOSE_CONTEXT_STATE"]
+            context.state = CONTEXT_STATE_MANAGER["PAIR_SIGN_CLOSE_CONTEXT_STATE"]
         else:
             context.current_sentence_builder.append(current_char)
             context.state = CONTEXT_STATE_MANAGER["FINISH_CHECK_CONTEXT_STATE"]
@@ -72,17 +70,18 @@ class PairSignContextState(ContextState):
 
             pair_sign_context.current_index = context.current_index + 1
             pair_sign_context.pair_sign = context.current_char
-            pair_sign_context.back_pair_sign = context.pair_signs[
-                pair_sign_context.pair_sign]
+            pair_sign_context.back_pair_sign = context.pair_signs[pair_sign_context.pair_sign]
             pair_sign_context.is_pair_sign_opened = True
             pair_sign_context.execute()
             res = pair_sign_context.sentences
 
             if len(res) == 3 and \
-                    res[2] in pair_sign_context.back_pair_sign and \
                     res[0] == pair_sign_context.pair_sign and \
+                    res[2] in pair_sign_context.back_pair_sign and \
                     ((res[1] and res[1][-1] not in SPLIT_SIGN) or (len(res[1]) < 20)):
                 context.current_sentence_builder.append(''.join(res))
+                context.char_num += len(res[1])
+                context.token_num = int(context.char_num / 1.5)
             else:
                 if len(context.current_sentence_builder) != 0:
                     sen = ''.join(context.current_sentence_builder)
