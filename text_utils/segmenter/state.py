@@ -56,7 +56,7 @@ class FinishCheckContextState(ContextState):
 
 class PairSignContextState(ContextState):
 
-    def execute(self, context):
+    def execute(self, context: Context):
 
         if context.current_index + 1 == len(context.text):
             context.current_sentence_builder.append(context.current_char)
@@ -79,6 +79,16 @@ class PairSignContextState(ContextState):
                     res[0] == pair_sign_context.pair_sign and \
                     res[2] in pair_sign_context.back_pair_sign and \
                     ((res[1] and res[1][-1] not in SPLIT_SIGN) or (len(res[1]) < 20)):
+
+                old_token_num = context.token_num
+                context.token_num = int((old_token_num + len(res[1])) / 1.5)
+
+                if context.is_too_long():
+                    context.state = SplitSubSentContextState()
+                    context.execute()
+                    # restore finish state after escaped from prev context execute
+                    context.is_finished = False
+
                 context.current_sentence_builder.append(''.join(res))
                 context.char_num += len(res[1])
                 context.token_num = int(context.char_num / 1.5)
@@ -105,6 +115,17 @@ class PairSignCloseContextState(ContextState):
             # context.current_sentence_builder = []
             context.clear_local_state()
         context.sentences.append(context.current_char)
+        context.finish()
+        return
+
+
+class SplitSubSentContextState(ContextState):
+
+    def execute(self, context):
+        if len(context.current_sentence_builder) != 0:
+            sen = ''.join(context.current_sentence_builder)
+            context.sentences.append(sen)
+            context.clear_local_state()
         context.finish()
         return
 
