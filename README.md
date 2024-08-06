@@ -1,3 +1,30 @@
+# 文本處理工具 (中文斷句修改版)
+
+**修改部分**
+
+- 斷句不再將 "有引號的子句" 視為前後主要句子的其中一個字
+- 子句太長時會先將已暫存的句子切開，再繼續處理子句
+
+#### 範例
+```
+from text_utils.segmenter import SentenceSegmenter
+ss = SentenceSegmenter(token_limits=20) 
+# token limit != len(sentence), token_num 會是 `char_num * 1.5`
+
+text = "李洋在社群平台表示，「最後一舞，這是送給你們的」、「下台一鞠躬，希望最後這個禮物你們喜歡」，並附上自己與 2024 巴黎奧運金牌的合照。"
+# 修改前這句會原封不動保留
+
+for sent in ss.segment(text):
+    print("tokens", len(sent), sent)
+
+# Result:
+# tokens 25 李洋在社群平台表示，「最後一舞，這是送給你們的」、
+# tokens 43 「下台一鞠躬，希望最後這個禮物你們喜歡」，並附上自己與 2024 巴黎奧運金牌的合照。
+
+## 第二段的引號子句個數為 18，仍然在 token limit 內
+```
+
+---
 # 文本处理工具脚本库
 
 
