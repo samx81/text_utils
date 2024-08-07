@@ -76,12 +76,11 @@ class PairSignContextState(ContextState):
             res = pair_sign_context.sentences
 
             if len(res) == 3 and \
-                    res[0] == pair_sign_context.pair_sign and \
+                    res[0] in pair_sign_context.pair_sign and \
                     res[2] in pair_sign_context.back_pair_sign and \
-                    ((res[1] and res[1][-1] not in SPLIT_SIGN) or (len(res[1]) < 20)):
+                    (res[1] or (len(res[1]) < context.token_limits)):
 
-                old_token_num = context.token_num
-                context.token_num = int((old_token_num + len(res[1])) / 1.5)
+                context.token_num = int((context.char_num + len(res[1])) / 1.5)
 
                 if context.is_too_long():
                     context.state = SplitSubSentContextState()
@@ -98,7 +97,7 @@ class PairSignContextState(ContextState):
                     context.sentences.append(sen)
                     # context.current_sentence_builder = []
                     context.clear_local_state()
-                context.sentences += res
+                context.sentences += ''.join(res)
 
             context.current_index = pair_sign_context.current_index
 
