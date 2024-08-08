@@ -93,11 +93,11 @@ class PairSignContextState(ContextState):
                     res[-1] in pair_sign_context.back_pair_sign:
                 all_sub_sent = "".join(res[1:-1])
                 if len(all_sub_sent) < context.token_limits:
-                    subsentence_checking(all_sub_sent)
+                    subsentence_checking(context, all_sub_sent)
                 else:
                     context.current_sentence_builder.append(res[0])
                     for sent in res[1:-1]:
-                        subsentence_checking(sent)
+                        subsentence_checking(context, sent)
                     context.current_sentence_builder.append(res[-1])
             else:
                 if len(context.current_sentence_builder) != 0:
