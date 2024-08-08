@@ -75,12 +75,8 @@ class PairSignContextState(ContextState):
             pair_sign_context.execute()
             res = pair_sign_context.sentences
 
-            if len(res) == 3 and \
-                    res[0] in pair_sign_context.pair_sign and \
-                    res[2] in pair_sign_context.back_pair_sign and \
-                    (res[1] or (len(res[1]) < context.token_limits)):
-
-                context.token_num = int((context.char_num + len(res[1])) / 1.5)
+            def subsentence_checking(context, sent):
+                context.token_num = int((context.char_num + len(sent)) / 1.5)
 
                 if context.is_too_long():
                     context.state = SplitSubSentContextState()
@@ -88,9 +84,21 @@ class PairSignContextState(ContextState):
                     # restore finish state after escaped from prev context execute
                     context.is_finished = False
 
-                context.current_sentence_builder.append(''.join(res))
-                context.char_num += len(res[1])
+                context.current_sentence_builder.append(sent)
+                context.char_num += len(sent)
                 context.token_num = int(context.char_num / 1.5)
+
+            if len(res) >= 3 and res[1] and \
+                    res[0] in pair_sign_context.pair_sign and \
+                    res[-1] in pair_sign_context.back_pair_sign:
+                all_sub_sent = "".join(res[1:-1])
+                if len(all_sub_sent) < context.token_limits:
+                    subsentence_checking(all_sub_sent)
+                else:
+                    context.current_sentence_builder.append(res[0])
+                    for sent in res[1:-1]:
+                        subsentence_checking(sent)
+                    context.current_sentence_builder.append(res[-1])
             else:
                 if len(context.current_sentence_builder) != 0:
                     sen = ''.join(context.current_sentence_builder)
