@@ -25,7 +25,7 @@ class CharCheckContextState(ContextState):
 
         if (not context.is_pair_sign_opened) and (current_char in context.pair_signs):
             context.state = CONTEXT_STATE_MANAGER["PAIR_SIGN_CONTEXT_STATE"]
-        elif context.is_too_long() and current_char in SOFTEN_SPLIT_SIGN:
+        elif current_char in SOFTEN_SPLIT_SIGN and context.is_too_long():
             context.current_sentence_builder.append(current_char)
             context.state = CONTEXT_STATE_MANAGER["SPLIT_CONTEXT_STATE"]
         elif current_char in context.split_signs:
@@ -75,7 +75,7 @@ class PairSignContextState(ContextState):
             pair_sign_context.execute()
             res = pair_sign_context.sentences
 
-            def subsentence_checking(context, sent):
+            def subsentence_checking(context, sent=""):
                 context.token_num = int((context.char_num + len(sent)) / 1.5)
 
                 if context.is_too_long():
@@ -99,6 +99,7 @@ class PairSignContextState(ContextState):
                     for sent in res[1:-1]:
                         subsentence_checking(context, sent)
                     context.current_sentence_builder.append(res[-1])
+                    subsentence_checking(context)
             else:
                 if len(context.current_sentence_builder) != 0:
                     sen = ''.join(context.current_sentence_builder)
