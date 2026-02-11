@@ -106,7 +106,7 @@ class PairSignContextState(ContextState):
                     context.sentences.append(sen)
                     # context.current_sentence_builder = []
                     context.clear_local_state()
-                context.sentences += ''.join(res)
+                context.sentences.append(''.join(res))
 
             context.current_index = pair_sign_context.current_index
 
